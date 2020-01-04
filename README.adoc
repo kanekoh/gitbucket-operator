@@ -1,0 +1,53 @@
+= GitBucket Operator
+
+== Tested Environment
+
+- OpenShift v4.2
+
+== Prerequisites
+
+- OpenShift Container Platform
+- Cluster admin user e.g. system:admin
+
+== Build gitbucket container image
+
+
+Create a project for gitbucket
+
+```
+$ oc new-project gitbucket
+```
+
+Create build config
+
+```
+$ oc new-build redhat-openjdk18-openshift:1.5~https://github.com/kanekoh/gitbucket-s2i.git
+```
+
+== Deploy Gitbucket Operator
+
+Clone this git repository
+
+```
+$ git clone https://github.com/kanekoh/gitbucket-operator.git
+$ cd gitbucket-operator
+```
+
+Create objects required using Operator by cluster-admin user.
+
+```
+$ oc create -f deploy/crds/gitbucket.example.io_gitbuckets_crd.yaml
+$ oc create -f deploy/role.yaml
+$ oc create -f deploy/service_account.yaml
+$ oc create -f deploy/role_binding.yaml
+$ oc create -f deploy/operator.yaml
+```
+
+
+== Build Operator
+
+```
+# operator-sdk build quay.io/repository/hkaneko/gitbucket-operator:1.0
+# docker push 
+```
+

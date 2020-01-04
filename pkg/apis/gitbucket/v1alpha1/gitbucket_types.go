@@ -13,7 +13,8 @@ type GitBucketSpec struct {
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
 
-	Image string `json:"image"`
+	Image         string `json:"image"`
+	Enable_public bool   `json:"enable_public"`
 }
 
 // GitBucketStatus defines the observed state of GitBucket
