@@ -1,0 +1,7 @@
+apiVersion: gitbucket.example.io/v1alpha1
+kind: GitBucket
+metadata:
+  name: example-gitbucket
+spec:
+  # Add fields here
+  size: 3
