@@ -1,0 +1,11 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: gitbucket-operator
+subjects:
+- kind: ServiceAccount
+  name: gitbucket-operator
+roleRef:
+  kind: Role
+  name: gitbucket-operator
+  apiGroup: rbac.authorization.k8s.io
