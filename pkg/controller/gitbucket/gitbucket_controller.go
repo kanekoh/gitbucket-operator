@@ -208,13 +208,14 @@ func (r *ReconcileGitBucket) newServiceForGitBucket(g *gitbucketv1alpha1.GitBuck
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      g.Name,
 			Namespace: g.Namespace,
+			Labels:    ls,
 		},
 		Spec: corev1.ServiceSpec{
 			Selector: ls,
 			Ports: []corev1.ServicePort{
 				{
 					Name:       "http",
-					Port:       80,
+					Port:       8080,
 					TargetPort: intstr.FromString("gitbucket"),
 				},
 			},
