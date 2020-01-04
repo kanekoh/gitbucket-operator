@@ -125,6 +125,19 @@ func (r *ReconcileGitBucket) Reconcile(request reconcile.Request) (reconcile.Res
 		return reconcile.Result{}, err
 	}
 
+	// Ensure the deployment size is the same as the spec
+	size := gitbucket.Spec.Size
+	if *found.Spec.Replicas != size {
+		found.Spec.Replicas = &size
+		err = r.client.Update(context.TODO(), found)
+		if err != nil {
+			reqLogger.Error(err, "Failed to update Deployment", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
+			return reconcile.Result{}, err
+		}
+		// Spec updated - return and requeue
+		return reconcile.Result{Requeue: true}, nil
+	}
+
 	// Check if the service already exists, if not create a new one
 	foundService := &corev1.Service{}
 	err = r.client.Get(context.TODO(), types.NamespacedName{Name: gitbucket.Name, Namespace: gitbucket.Namespace}, foundService)
@@ -250,8 +263,7 @@ func (r *ReconcileGitBucket) newRouteForGitBucket(g *gitbucketv1alpha1.GitBucket
 func (r *ReconcileGitBucket) newDeploymentForGitBucket(g *gitbucketv1alpha1.GitBucket) *appsv1.Deployment {
 	ls := labelsForGitBucket(g.Name)
 	image := g.Spec.Image
-	var replicas int32
-	replicas = 1
+	replicas := g.Spec.Size
 
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
