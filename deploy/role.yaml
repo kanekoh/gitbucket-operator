@@ -15,6 +15,7 @@ rules:
   - events
   - configmaps
   - secrets
+  - 
   verbs:
   - create
   - delete
@@ -78,3 +79,14 @@ rules:
   - patch
   - update
   - watch
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - delete
