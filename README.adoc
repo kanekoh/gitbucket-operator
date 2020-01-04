@@ -1,0 +1,31 @@
+= GitBucket Operator
+
+== Tested Environment
+
+- OpenShift v4.2
+
+== Prerequisites
+
+- OpenShift Container Platform
+- Cluster admin user e.g. system:admin
+
+== Build gitbucket container image
+
+
+Create a project for gitbucket
+
+```
+$ oc new-project gitbucket
+```
+
+Create build config
+
+```
+$ oc new-build redhat-openjdk18-openshift:1.5~https://github.com/kanekoh/gitbucket-s2i.git
+```
+
+== Deploy Gitbucket Operator
+
+
+== Build Operator
+
