@@ -5,12 +5,14 @@ import (
 	"reflect"
 
 	gitbucketv1alpha1 "github.com/kanekoh/gitbucket-operator/pkg/apis/gitbucket/v1alpha1"
+	routev1 "github.com/openshift/api/route/v1"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -123,6 +125,43 @@ func (r *ReconcileGitBucket) Reconcile(request reconcile.Request) (reconcile.Res
 		return reconcile.Result{}, err
 	}
 
+	// Check if the service already exists, if not create a new one
+	foundService := &corev1.Service{}
+	err = r.client.Get(context.TODO(), types.NamespacedName{Name: gitbucket.Name, Namespace: gitbucket.Namespace}, foundService)
+	if err != nil && errors.IsNotFound(err) {
+		//Define a service
+		svc := r.newServiceForGitBucket(gitbucket)
+		reqLogger.Info("Creating a new service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
+
+		err = r.client.Create(context.TODO(), svc)
+		if err != nil {
+			reqLogger.Error(err, "Failed to create new service", "Service.Namespace", svc.Namespace, "Service.Name", svc.Name)
+			return reconcile.Result{}, err
+		}
+	} else if err != nil {
+		reqLogger.Error(err, "Failed to get Service")
+		return reconcile.Result{}, err
+	}
+
+	// Check if the route already exists, if not create a new one
+	if !gitbucket.Spec.Enable_public {
+		foundRoute := &routev1.Route{}
+		err = r.client.Get(context.TODO(), types.NamespacedName{Name: gitbucket.Name, Namespace: gitbucket.Namespace}, foundRoute)
+		if err != nil && errors.IsNotFound(err) {
+			// Define a route
+			route := r.newRouteForGitBucket(gitbucket)
+			reqLogger.Info("Creating a new route", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
+
+			err = r.client.Create(context.TODO(), route)
+			if err != nil {
+				reqLogger.Error(err, "Faild to create new route", "Route.Namespace", route.Namespace, "Route.Name", route.Name)
+				return reconcile.Result{}, err
+			}
+		} else if err != nil {
+			reqLogger.Error(err, "Faild to get route")
+			return reconcile.Result{}, err
+		}
+	}
 	// Ensure the deployment image is the same as the spec
 	image := gitbucket.Spec.Image
 	if found.Spec.Template.Spec.Containers[0].Image != image {
@@ -160,6 +199,51 @@ func (r *ReconcileGitBucket) Reconcile(request reconcile.Request) (reconcile.Res
 	}
 
 	return reconcile.Result{}, nil
+}
+
+func (r *ReconcileGitBucket) newServiceForGitBucket(g *gitbucketv1alpha1.GitBucket) *corev1.Service {
+	ls := labelsForGitBucket(g.Name)
+
+	svc := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      g.Name,
+			Namespace: g.Namespace,
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: ls,
+			Ports: []corev1.ServicePort{
+				{
+					Name:       "http",
+					Port:       80,
+					TargetPort: intstr.FromString("gitbucket"),
+				},
+			},
+		},
+	}
+
+	return svc
+}
+
+// Refer to the https://github.com/openshift/api/blob/master/route/v1/types.go
+func (r *ReconcileGitBucket) newRouteForGitBucket(g *gitbucketv1alpha1.GitBucket) *routev1.Route {
+	ls := labelsForGitBucket(g.Name)
+	route := &routev1.Route{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      g.Name,
+			Namespace: g.Namespace,
+			Labels:    ls,
+		},
+		Spec: routev1.RouteSpec{
+			Port: &routev1.RoutePort{
+				TargetPort: intstr.FromInt(8080),
+			},
+			To: routev1.RouteTargetReference{
+				Kind: "Service",
+				Name: g.Name,
+			},
+		},
+	}
+	return route
 }
 
 func (r *ReconcileGitBucket) newDeploymentForGitBucket(g *gitbucketv1alpha1.GitBucket) *appsv1.Deployment {
