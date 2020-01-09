@@ -17,7 +17,10 @@ metadata:
       ]
     capabilities: Basic Install
   name: gitbucket-operator.v0.0.1
+  metadata.annotations.categories: repository
 spec:
+  icon:
+  - https://camo.githubusercontent.com/986478a57adb293644255855ff46ad943554b0c0/68747470733a2f2f662e636c6f75642e6769746875622e636f6d2f6173736574732f353135393531312f3931323239302f34303433666634362d666466652d313165322d393266642d3762666165616638346638302e706e67
   apiservicedefinitions: {}
   customResourceDefinitions:
     owned:
@@ -62,7 +65,7 @@ spec:
                       fieldPath: metadata.name
                 - name: OPERATOR_NAME
                   value: gitbucket-operator
-                image: REPLACE_IMAGE
+                image: quay.io/repository/hkaneko/gitbucket-operator:1.0
                 imagePullPolicy: Always
                 name: gitbucket-operator
                 resources: {}
