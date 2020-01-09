@@ -287,7 +287,16 @@ func (r *ReconcileGitBucket) newDeploymentForGitBucket(g *gitbucketv1alpha1.GitB
 							ContainerPort: 8080,
 							Name:          "gitbucket",
 						}},
+						Env: []corev1.EnvVar{
+							{
+								Name:  "GITBUCKET_HOME",
+								Value: g.Spec.GitbucketHome.MountPath,
+							},
+						},
 					}},
+					Volumes: []corev1.Volume{
+						getDataDireVolume(g),
+					},
 				},
 			},
 		},
@@ -296,6 +305,22 @@ func (r *ReconcileGitBucket) newDeploymentForGitBucket(g *gitbucketv1alpha1.GitB
 	// Set Gitbucket instance as the owner and controller
 	controllerutil.SetControllerReference(g, dep, r.scheme)
 	return dep
+}
+
+func getDataDireVolume(g *gitbucketv1alpha1.GitBucket) corev1.Volume {
+	vol := corev1.Volume{}
+
+	vol.Name = "data_dir"
+
+	if g.Spec.GitbucketHome.Ephemeral {
+		vol.EmptyDir = &corev1.EmptyDirVolumeSource{}
+	} else {
+		vol.PersistentVolumeClaim = &corev1.PersistentVolumeClaimVolumeSource{
+			ClaimName: "gitbucket-home",
+		}
+	}
+
+	return vol
 }
 
 // labelsForGitBucket returns the labels for selecting the resources

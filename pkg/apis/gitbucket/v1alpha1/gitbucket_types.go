@@ -13,8 +13,32 @@ type GitBucketSpec struct {
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
 
-	Image         string `json:"image"`
-	Enable_public bool   `json:"enable_public"`
+	// +kubebuilder:default := 1
+	// +kubebuilder:validation:Minimum := 1
+	Size int32 `json:"size"`
+
+	// +kubebuilder:default := quay.io/hkaneko/gitbucket-docker:latest
+	Image string `json:"image"`
+
+	// +kubebuilder:default := false
+	Enable_public bool `json:"enable_public"`
+
+	// +kubebuilder:default := false
+	Enable_database bool `json:"enable_database"`
+
+	GitbucketHome *GitbucketHomeSpec `json:"gitbucketHome"`
+}
+
+type GitbucketHomeSpec struct {
+	// +kubebuilder:default := true
+	Ephemeral bool `json:"ephemeral"`
+
+	// +kubebuilder:validation:Required
+	// +kubebuilder:validation:Minimum := 1
+	Size int32 `json:"size"`
+
+	// +kubebuilder:default := /opt/data/gitbucket
+	MountPath string `json:"mount_path"`
 }
 
 // GitBucketStatus defines the observed state of GitBucket

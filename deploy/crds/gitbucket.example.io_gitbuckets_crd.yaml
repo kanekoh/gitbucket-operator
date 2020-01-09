@@ -30,9 +30,50 @@ spec:
           type: object
         spec:
           description: GitBucketSpec defines the desired state of GitBucket
+          properties:
+            enable_database:
+              type: boolean
+            enable_public:
+              type: boolean
+            gitbucketHome:
+              properties:
+                ephemeral:
+                  type: boolean
+                mount_path:
+                  type: string
+                size:
+                  format: int32
+                  type: integer
+              required:
+              - ephemeral
+              - mount_path
+              - size
+              type: object
+            image:
+              type: string
+            size:
+              format: int32
+              type: integer
+          required:
+          - enable_database
+          - enable_public
+          - gitbucketHome
+          - image
+          - size
           type: object
         status:
           description: GitBucketStatus defines the observed state of GitBucket
+          properties:
+            nodes:
+              description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                of cluster Important: Run "operator-sdk generate k8s" to regenerate
+                code after modifying this file Add custom validation using kubebuilder
+                tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html'
+              items:
+                type: string
+              type: array
+          required:
+          - nodes
           type: object
       type: object
   version: v1alpha1

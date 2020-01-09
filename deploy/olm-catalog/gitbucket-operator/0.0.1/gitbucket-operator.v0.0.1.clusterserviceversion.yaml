@@ -1,0 +1,173 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "gitbucket.example.io/v1alpha1",
+          "kind": "GitBucket",
+          "metadata": {
+            "name": "example-gitbucket"
+          },
+          "spec": {
+            "enable_public": true
+          }
+        }
+      ]
+    capabilities: Basic Install
+  name: gitbucket-operator.v0.0.1
+spec:
+  apiservicedefinitions: {}
+  customResourceDefinitions:
+    owned:
+    - description: GitBucket is the Schema for the gitbuckets API
+      kind: GitBucket
+      name: gitbuckets.gitbucket.example.io
+      version: v1alpha1
+      displayName: Gitbucket v1alpha1
+  description: Placeholder description
+  displayName: Gitbucket Operator
+  keywords:
+  - Gitbucket
+  maintainers:
+  - name: Hiroyuki Kaneko
+    email: hkaneko@redhat.com
+  install:
+    spec:
+      deployments:
+      - name: gitbucket-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: gitbucket-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: gitbucket-operator
+            spec:
+              containers:
+              - command:
+                - gitbucket-operator
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: gitbucket-operator
+                image: REPLACE_IMAGE
+                imagePullPolicy: Always
+                name: gitbucket-operator
+                resources: {}
+              serviceAccountName: gitbucket-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          - ""
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - gitbucket-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          - deployments
+          verbs:
+          - get
+        - apiGroups:
+          - gitbucket.example.io
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - delete
+        serviceAccountName: gitbucket-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  maturity: alpha
+  provider:
+    name: Hiroyuki Kaneko
+  replaces: gitbucket-operator.v0.0.0
+  version: 0.0.1
