@@ -16,7 +16,7 @@ spec:
       containers:
         - name: gitbucket-operator
           # Replace this with the built image name
-          image: REPLACE_IMAGE
+          image: quay.io/repository/hkaneko/gitbucket-operator:1.1
           command:
           - gitbucket-operator
           imagePullPolicy: Always
