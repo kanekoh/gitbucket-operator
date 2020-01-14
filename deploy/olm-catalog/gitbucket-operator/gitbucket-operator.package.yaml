@@ -1,5 +1,5 @@
 channels:
-- currentCSV: gitbucket-operator.v0.0.1
+- currentCSV: gitbucket-operator.v0.0.3
   name: alpha
 defaultChannel: alpha
-packageName: gitbucket-operator-app
+packageName: gitbucket-operator

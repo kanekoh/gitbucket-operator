@@ -1,0 +1,186 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "gitbucket.example.io/v1alpha1",
+          "kind": "GitBucket",
+          "metadata": {
+            "name": "example-gitbucket"
+          },
+          "spec": {
+            "size": 3
+          }
+        }
+      ]
+    capabilities: Basic Install
+    categories: Developer Tools
+    certified: "false"
+    containerImage: quay.io/repository/hkaneko/gitbucket-operator:1.1.1
+    createdAt: "2020-01-10T08:00:00Z"
+    description: gitbucket operator
+    repository: https://github.com/kanekoh/gitbucket-operator
+    support: "false"
+  name: gitbucket-operator.v0.0.3
+  namespace: placeholder
+spec:
+  apiservicedefinitions: {}
+  customResourceDefinitions:
+    owned:
+    - description: GitBucket is the Schema for the gitbuckets API
+      kind: GitBucket
+      name: gitbuckets.gitbucket.example.io
+      version: v1alpha1
+  description: Placeholder description
+  displayName: Gitbucket Operator
+  icon:
+  - base64data: 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
+    mediatype: image/png
+  install:
+    spec:
+      deployments:
+      - name: gitbucket-operator
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              name: gitbucket-operator
+          strategy: {}
+          template:
+            metadata:
+              labels:
+                name: gitbucket-operator
+            spec:
+              containers:
+              - command:
+                - gitbucket-operator
+                env:
+                - name: WATCH_NAMESPACE
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.annotations['olm.targetNamespaces']
+                - name: POD_NAME
+                  valueFrom:
+                    fieldRef:
+                      fieldPath: metadata.name
+                - name: OPERATOR_NAME
+                  value: gitbucket-operator
+                image: quay.io/repository/hkaneko/gitbucket-operator:1.1
+                imagePullPolicy: Always
+                name: gitbucket-operator
+                resources: {}
+              serviceAccountName: gitbucket-operator
+      permissions:
+      - rules:
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          - services
+          - services/finalizers
+          - endpoints
+          - persistentvolumeclaims
+          - events
+          - configmaps
+          - secrets
+          - ""
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - apps
+          resources:
+          - deployments
+          - daemonsets
+          - replicasets
+          - statefulsets
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - monitoring.coreos.com
+          resources:
+          - servicemonitors
+          verbs:
+          - get
+          - create
+        - apiGroups:
+          - apps
+          resourceNames:
+          - gitbucket-operator
+          resources:
+          - deployments/finalizers
+          verbs:
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - pods
+          verbs:
+          - get
+        - apiGroups:
+          - apps
+          resources:
+          - replicasets
+          - deployments
+          verbs:
+          - get
+        - apiGroups:
+          - gitbucket.example.io
+          resources:
+          - '*'
+          verbs:
+          - create
+          - delete
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        - apiGroups:
+          - route.openshift.io
+          resources:
+          - routes
+          verbs:
+          - get
+          - list
+          - watch
+          - create
+          - update
+          - delete
+        serviceAccountName: gitbucket-operator
+    strategy: deployment
+  installModes:
+  - supported: true
+    type: OwnNamespace
+  - supported: true
+    type: SingleNamespace
+  - supported: false
+    type: MultiNamespace
+  - supported: true
+    type: AllNamespaces
+  keywords:
+  - Gitbucket
+  links:
+  - name: Markplace Operator Source Code
+    url: https://github.com/operator-framework/operator-marketplace
+  maintainers:
+  - email: hkaneko@redhat.com
+    name: Hiroyuki Kaneko
+  maturity: alpha
+  provider:
+    name: Hiroyuki Kaneko
+  replaces: gitbucket-operator.v0.0.2
+  version: 0.0.3
