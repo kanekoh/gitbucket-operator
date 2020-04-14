@@ -51,3 +51,16 @@ $ oc create -f deploy/operator.yaml
 # docker push 
 ```
 
+== Test Operator
+
+=== Prerequisites
+
+- OpenShift Cluster 4.3+
+
+=== How to Test
+
+Before executing the test, you may need to login OpenShift Cluster with cluster-admin role. Then execute the test as follows:
+
+```
+$ operator-sdk test local ./test/e2e/ 
+```
