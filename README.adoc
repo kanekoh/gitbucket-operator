@@ -59,6 +59,14 @@ $ oc create -f deploy/operator.yaml
 
 === How to Test
 
+==== unit test
+
+```
+$ go test ./pkg/...
+```
+
+==== e2e test
+
 Before executing the test, you may need to login OpenShift Cluster with cluster-admin role. Then execute the test as follows:
 
 ```
