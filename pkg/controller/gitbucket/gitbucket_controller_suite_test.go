@@ -7,8 +7,7 @@ import (
 	"testing"
 )
 
-
-func TestGitbucketController(t *testing.T){
+func TestGitbucketController(t *testing.T) {
 	RegisterFailHandler(Fail)
 	RunSpecs(t, "Gitbuckt Controller SUite")
 }

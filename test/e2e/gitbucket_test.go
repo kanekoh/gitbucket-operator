@@ -4,13 +4,12 @@ import (
 	"testing"
 	"time"
 
-	operator "github.com/kanekoh/gitbucket-operator/pkg/apis/gitbucket/v1alpha1"
 	apis "github.com/kanekoh/gitbucket-operator/pkg/apis"
+	operator "github.com/kanekoh/gitbucket-operator/pkg/apis/gitbucket/v1alpha1"
 
 	framework "github.com/operator-framework/operator-sdk/pkg/test"
 	"github.com/operator-framework/operator-sdk/pkg/test/e2eutil"
 )
-
 
 const (
 	retryInterval        = time.Second * 5
@@ -19,7 +18,6 @@ const (
 	cleanupTimeout       = time.Second * 5
 )
 
-
 func TestGitbucket(t *testing.T) {
 	gitbucketList := &operator.GitBucketList{}
 	err := framework.AddToFrameworkScheme(apis.AddToScheme, gitbucketList)
@@ -27,13 +25,13 @@ func TestGitbucket(t *testing.T) {
 		t.Fatalf("failed to add custom resource scheme to framework: %v", err)
 	}
 
-	t.Run("gitbucket-group", func(t *testing.T){
+	t.Run("gitbucket-group", func(t *testing.T) {
 		t.Run("Cluster", GitbucketCluster)
 		t.Run("Cluster2", GitbucketCluster)
 	})
 }
 
-func GitbucketCluster(t *testing.T){
+func GitbucketCluster(t *testing.T) {
 	t.Parallel()
 	ctx := framework.NewContext(t)
 	defer ctx.Cleanup()
@@ -55,6 +53,5 @@ func GitbucketCluster(t *testing.T){
 	if err != nil {
 		t.Fatal(err)
 	}
-
 
 }
