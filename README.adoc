@@ -1,5 +1,7 @@
 = GitBucket Operator
 
+image:https://circleci.com/gh/kanekoh/gitbucket-operator.svg?style=svg["CircleCI", link="https://app.circleci.com/pipelines/github/kanekoh/gitbucket-operator"]
+
 == Tested Environment
 
 - OpenShift v4.2
