@@ -49,10 +49,11 @@ var _ = Describe("Gitbucket Controller", func() {
 		objs := []runtime.Object{gitbucket}
 
 		s := scheme.Scheme
-		s.AddKnownTypes(operator.SchemeGroupVersion, gitbucket)
 		// Add route Openshift scheme
 		err := routev1.AddToScheme(s)
 		Expect(err).NotTo(HaveOccurred())
+
+		s.AddKnownTypes(operator.SchemeGroupVersion, gitbucket)
 
 		cl := fake.NewFakeClient(objs...)
 
@@ -112,7 +113,7 @@ var _ = Describe("Gitbucket Controller", func() {
 		})
 
 		It("should have a route", func() {
-			Expect(routeReplicas).Should(HaveLen(1))
+			Expect(routeReplicas).Should(Equal(1))
 		})
 	})
 })
