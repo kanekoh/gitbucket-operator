@@ -174,7 +174,6 @@ func (r *ReconcileGitBucket) Reconcile(request reconcile.Request) (reconcile.Res
 	// 	return reconcile.Result{Requeue: true}, nil
 	// }
 
-
 	// Update the Gitbucket status with the pod names
 	// List the pods for this gitbucket's deployment
 	podList := &corev1.PodList{}

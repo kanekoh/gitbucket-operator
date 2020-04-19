@@ -15,6 +15,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes/scheme"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	// logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -27,15 +28,24 @@ var _ = Describe("Gitbucket Controller", func() {
 		image              = "https://localhost/testimage"
 		enable_public bool = false
 
-		dep       *appsv1.Deployment
-		routeList *routev1.RouteList
-
 		imageURL      string
 		routeReplicas int
+
+		dep       *appsv1.Deployment
+		routeList *routev1.RouteList
+		cl        client.Client
+		s         *runtime.Scheme
+		objs      []runtime.Object
+		gitbucket *operator.GitBucket
+		r         *ReconcileGitBucket
+		req       reconcile.Request
+		res       reconcile.Result
+		err       error
 	)
 
 	BeforeEach(func() {
-		gitbucket := &operator.GitBucket{
+		// Create Custom Resource
+		gitbucket = &operator.GitBucket{
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      name,
 				Namespace: namespace,
@@ -46,74 +56,118 @@ var _ = Describe("Gitbucket Controller", func() {
 			},
 		}
 
-		objs := []runtime.Object{gitbucket}
-
-		s := scheme.Scheme
+		// Set Scheme
+		s = scheme.Scheme
 		// Add route Openshift scheme
 		err := routev1.AddToScheme(s)
 		Expect(err).NotTo(HaveOccurred())
-
 		s.AddKnownTypes(operator.SchemeGroupVersion, gitbucket)
+	})
 
-		cl := fake.NewFakeClient(objs...)
-
-		r := &ReconcileGitBucket{client: cl, scheme: s}
-
-		req := reconcile.Request{
+	JustBeforeEach(func() {
+		r = &ReconcileGitBucket{client: cl, scheme: s}
+		req = reconcile.Request{
 			NamespacedName: types.NamespacedName{
 				Name:      name,
 				Namespace: namespace,
 			},
 		}
 
-		res, err := r.Reconcile(req)
-		Expect(err).NotTo(HaveOccurred())
-		Expect(res.Requeue).Should(BeTrue())
-
-		dep = &appsv1.Deployment{}
-		err = r.client.Get(context.TODO(), req.NamespacedName, dep)
-		Expect(err).NotTo(HaveOccurred())
-
-		routeList = &routev1.RouteList{}
-		err = r.client.List(context.TODO(), routeList)
+		res, err = r.Reconcile(req)
 		Expect(err).NotTo(HaveOccurred())
 	})
 
-	Context("When gitbucket is define without public route", func() {
-		JustBeforeEach(func() {
-			enable_public = false
-		})
-
+	Describe("Does not define Custom Resource", func() {
+		var (
+			depList *appsv1.DeploymentList
+		)
 		BeforeEach(func() {
-			imageURL = dep.Spec.Template.Spec.Containers[0].Image
+			objs = []runtime.Object{}
+			cl = fake.NewFakeClient(objs...)
+		})
+
+		JustBeforeEach(func() {
+			// Get Objects created by Operator
+			depList = &appsv1.DeploymentList{}
+			err := r.client.List(context.TODO(), depList)
+			Expect(err).NotTo(HaveOccurred())
+
+			routeList = &routev1.RouteList{}
+			err = r.client.List(context.TODO(), routeList)
+			Expect(err).NotTo(HaveOccurred())
+
+			// Reconsile Requeue
+			Expect(res.Requeue).Should(BeFalse())
+		})
+
+		It("should not have Deployment", func() {
+			depReplicas := len(depList.Items)
+			Expect(depReplicas).Should(BeZero())
+		})
+
+		It("should not have route", func() {
 			routeReplicas = len(routeList.Items)
-		})
-
-		It("should have the image URL was specified", func() {
-			Expect(imageURL).Should(Equal(image))
-		})
-
-		It("should not have the route", func() {
 			Expect(routeReplicas).Should(BeZero())
 		})
 	})
 
-	Context("When gitbucket is define with public route", func() {
-		JustBeforeEach(func() {
-			enable_public = true
-		})
-
+	Describe("Define Custom Resource", func() {
 		BeforeEach(func() {
-			imageURL = dep.Spec.Template.Spec.Containers[0].Image
-			routeReplicas = len(routeList.Items)
+			// Reconcile
+			objs = []runtime.Object{gitbucket}
+			cl = fake.NewFakeClient(objs...)
 		})
 
-		It("should have the image URL was specified", func() {
-			Expect(imageURL).Should(Equal(image))
+		JustBeforeEach(func() {
+			// Get Objects created by Operator
+			dep = &appsv1.Deployment{}
+			err := r.client.Get(context.TODO(), req.NamespacedName, dep)
+			Expect(err).NotTo(HaveOccurred())
+
+			routeList = &routev1.RouteList{}
+			err = r.client.List(context.TODO(), routeList)
+			Expect(err).NotTo(HaveOccurred())
+
+			// Reconsile Requeue
+			Expect(res.Requeue).Should(BeTrue())
 		})
 
-		It("should have a route", func() {
-			Expect(routeReplicas).Should(Equal(1))
+		Context("When gitbucket is define without public route", func() {
+			BeforeEach(func() {
+				enable_public = false
+			})
+
+			JustBeforeEach(func() {
+				imageURL = dep.Spec.Template.Spec.Containers[0].Image
+				routeReplicas = len(routeList.Items)
+			})
+
+			It("should have the image URL was specified", func() {
+				Expect(imageURL).Should(Equal(image))
+			})
+
+			It("should not have the route", func() {
+				Expect(routeReplicas).Should(BeZero())
+			})
+		})
+
+		Context("When gitbucket is define with public route", func() {
+			BeforeEach(func() {
+				enable_public = true
+			})
+
+			JustBeforeEach(func() {
+				imageURL = dep.Spec.Template.Spec.Containers[0].Image
+				routeReplicas = len(routeList.Items)
+			})
+
+			It("should have the image URL was specified", func() {
+				Expect(imageURL).Should(Equal(image))
+			})
+
+			It("should have a route", func() {
+				Expect(routeReplicas).Should(Equal(1))
+			})
 		})
 	})
 })
