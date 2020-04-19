@@ -121,6 +121,18 @@ func (r *ReconcileGitBucket) Reconcile(request reconcile.Request) (reconcile.Res
 	} else if err != nil {
 		reqLogger.Error(err, "Failed to get Deployment")
 		return reconcile.Result{}, err
+	} else if err == nil {
+		// Ensure the deployment image is the same as the spec
+		image := gitbucket.Spec.Image
+		if found.Spec.Template.Spec.Containers[0].Image != image {
+			// Update Image as image.
+			found.Spec.Template.Spec.Containers[0].Image = image
+			err = r.client.Update(context.TODO(), found)
+			if err != nil {
+				reqLogger.Error(err, "Failed to update Deployment", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
+				return reconcile.Result{}, err
+			}
+		}
 	}
 
 	// Check if the service already exists, if not create a new one
@@ -160,19 +172,6 @@ func (r *ReconcileGitBucket) Reconcile(request reconcile.Request) (reconcile.Res
 			return reconcile.Result{}, err
 		}
 	}
-
-	// // Ensure the deployment image is the same as the spec
-	// image := gitbucket.Spec.Image
-	// if found.Spec.Template.Spec.Containers[0].Image != image {
-	// 	// Update Image as image.
-	// 	found.Spec.Template.Spec.Containers[0].Image = image
-	// 	if err != nil {
-	// 		reqLogger.Error(err, "Failed to update Deployment", "Deployment.Namespace", found.Namespace, "Deployment.Name", found.Name)
-	// 		return reconcile.Result{}, err
-	// 	}
-	// 	// Spec updated - return and requeue
-	// 	return reconcile.Result{Requeue: true}, nil
-	// }
 
 	// Update the Gitbucket status with the pod names
 	// List the pods for this gitbucket's deployment

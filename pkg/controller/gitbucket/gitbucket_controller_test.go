@@ -132,7 +132,7 @@ var _ = Describe("Gitbucket Controller", func() {
 			Expect(res.Requeue).Should(BeTrue())
 		})
 
-		Context("When gitbucket is define without public route", func() {
+		Context("When gitbucket is defined without public route", func() {
 			BeforeEach(func() {
 				enable_public = false
 			})
@@ -151,7 +151,7 @@ var _ = Describe("Gitbucket Controller", func() {
 			})
 		})
 
-		Context("When gitbucket is define with public route", func() {
+		Context("When gitbucket is defined with public route", func() {
 			BeforeEach(func() {
 				enable_public = true
 			})
@@ -167,6 +167,42 @@ var _ = Describe("Gitbucket Controller", func() {
 
 			It("should have a route", func() {
 				Expect(routeReplicas).Should(Equal(1))
+			})
+		})
+
+		Context("When gitbucket is re-defined with modified image URL", func(){
+			BeforeEach(func(){
+				enable_public = false
+			})
+
+			JustBeforeEach(func(){
+				dep.Spec.Template.Spec.Containers[0].Image = "fakeImage"
+				err := r.client.Update(context.TODO(), dep)
+				Expect(err).NotTo(HaveOccurred())
+
+				res, err = r.Reconcile(req)
+				Expect(err).NotTo(HaveOccurred())
+				Expect(res.Requeue).Should(BeTrue())
+
+				// Get Objects created by Operator
+				dep = &appsv1.Deployment{}
+				err = r.client.Get(context.TODO(), req.NamespacedName, dep)
+				Expect(err).NotTo(HaveOccurred())
+
+				routeList = &routev1.RouteList{}
+				err = r.client.List(context.TODO(), routeList)
+				Expect(err).NotTo(HaveOccurred())
+				
+				imageURL = dep.Spec.Template.Spec.Containers[0].Image
+				routeReplicas = len(routeList.Items)
+			})
+
+			It("should have the image URL was specified in CR", func() {
+				Expect(imageURL).Should(Equal(image))
+			})
+
+			It("should not have the route", func() {
+				Expect(routeReplicas).Should(BeZero())
 			})
 		})
 	})
