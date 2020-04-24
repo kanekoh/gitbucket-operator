@@ -24,7 +24,13 @@ steps:
     GOPATH=$PWD
     operator-sdk \
       build \
-      quay.io/repository/hkaneko/gitbucket-operator:1.0 \
-      --verbose \
+      quay.io/repository/hkaneko/gitbucket-operator:1.0-$(Build.BuildId) \
       --go-build-args "-o ./build/_output/bin/gitbucket-operator"
   displayName: 'Build Operator Image'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'Quay'
+    repository: 'gitbucket-operator'
+    command: 'push'
+    tags: '1.0-$(Build.BuildId)'
