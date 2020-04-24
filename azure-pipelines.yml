@@ -21,5 +21,9 @@ steps:
   displayName: 'Verify operator-sdk'
 
 - script: |
+    env
+  displayName: 'Show all environment variable'
+
+- script: |
     operator-sdk build --verbose quay.io/repository/hkaneko/gitbucket-operator:1.0
   displayName: 'Build Operator Image'
