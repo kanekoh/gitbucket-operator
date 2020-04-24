@@ -22,5 +22,9 @@ steps:
 
 - script: |
     GOPATH=$PWD
-    operator-sdk build --verbose quay.io/repository/hkaneko/gitbucket-operator:1.0
+    operator-sdk \
+      build \
+      quay.io/repository/hkaneko/gitbucket-operator:1.0 \
+      --verbose \
+      --go-build-args "-o ./build/_output/bin/gitbucket-operator"
   displayName: 'Build Operator Image'
