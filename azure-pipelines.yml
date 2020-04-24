@@ -31,6 +31,6 @@ steps:
 - task: Docker@2
   inputs:
     containerRegistry: 'Quay'
-    repository: 'gitbucket-operator'
+    repository: 'repository/hkaneko/gitbucket-operator'
     command: 'push'
     tags: '1.0-$(Build.BuildId)'
