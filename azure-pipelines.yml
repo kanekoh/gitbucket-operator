@@ -34,3 +34,4 @@ steps:
     repository: 'repository/hkaneko/gitbucket-operator'
     command: 'push'
     tags: '1.0-$(Build.BuildId)'
+  displayName: 'Push Operator Image to Registry'
