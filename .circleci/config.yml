@@ -27,6 +27,7 @@ jobs:
             mkdir -p /tmp/artifacts
       # Run Unit Test
       - run: 
+          name: "Run Unit Test and move artifact"
           command: |
             ./scripts/unit_test.sh
             mv coverage.html /tmp/artifacts
