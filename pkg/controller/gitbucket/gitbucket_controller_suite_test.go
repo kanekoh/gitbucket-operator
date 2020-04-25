@@ -9,5 +9,5 @@ import (
 
 func TestGitbucketController(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Gitbuckt Controller SUite")
+	RunSpecs(t, "Gitbuckt Controller Suite")
 }
