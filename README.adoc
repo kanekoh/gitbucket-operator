@@ -1,7 +1,7 @@
 = GitBucket Operator
 
 image:https://circleci.com/gh/kanekoh/gitbucket-operator.svg?style=svg["CircleCI", link="https://app.circleci.com/pipelines/github/kanekoh/gitbucket-operator"]
-image:https://dev.azure.com/tonbe521-lj/gitbucket-operator/_apis/build/status/kanekoh.gitbucket-operator?branchName=master["Azure Pipeline", link="https://dev.azure.com/tonbe521-lj/gitbucket-operator/_build/latest?definitionId=2&branchName=master"]
+image:https://dev.azure.com/tonbe521-lj/gitbucket-operator/_apis/build/status/kanekoh.gitbucket-operator?branchName=master["Build Status", link="https://dev.azure.com/tonbe521-lj/gitbucket-operator/_build/latest?definitionId=2&branchName=master"]
 
 == Tested Environment
 

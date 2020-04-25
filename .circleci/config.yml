@@ -28,9 +28,7 @@ jobs:
       # Run Unit Test
       - run: 
           command: |
-            go get -v -t -d ./...
-            go test -v -coverprofile=c.out ./pkg/...
-            go tool cover -html=c.out -o coverage.html
+            ./scripts/unit_test.sh
             mv coverage.html /tmp/artifacts
       - store_artifacts:
           path: /tmp/artifacts

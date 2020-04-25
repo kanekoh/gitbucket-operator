@@ -11,7 +11,7 @@ pool:
 
 steps:
 - script: |
-    go test ./pkg/...
+    ./scripts/unit_test.sh
   displayName: 'Unit Testing'
 
 - script: |
@@ -25,11 +25,7 @@ steps:
   displayName: 'Verify operator-sdk'
 
 - script: |
-    GOPATH=$PWD
-    operator-sdk \
-      build \
-      quay.io/hkaneko/gitbucket-operator:1.0-$(Build.BuildId) \
-      --go-build-args "-o ./build/_output/bin/gitbucket-operator"
+    ./scripts/build.sh 1.0-$(Build.BuildId)
   displayName: 'Build Operator Image'
 
 - task: Docker@2
