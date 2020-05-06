@@ -18,7 +18,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
-	// logf "sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 var _ = Describe("Gitbucket Controller", func() {
@@ -170,12 +169,12 @@ var _ = Describe("Gitbucket Controller", func() {
 			})
 		})
 
-		Context("When gitbucket is re-defined with modified image URL", func(){
-			BeforeEach(func(){
+		Context("When gitbucket is re-defined with modified image URL", func() {
+			BeforeEach(func() {
 				enable_public = false
 			})
 
-			JustBeforeEach(func(){
+			JustBeforeEach(func() {
 				dep.Spec.Template.Spec.Containers[0].Image = "fakeImage"
 				err := r.client.Update(context.TODO(), dep)
 				Expect(err).NotTo(HaveOccurred())
@@ -192,7 +191,7 @@ var _ = Describe("Gitbucket Controller", func() {
 				routeList = &routev1.RouteList{}
 				err = r.client.List(context.TODO(), routeList)
 				Expect(err).NotTo(HaveOccurred())
-				
+
 				imageURL = dep.Spec.Template.Spec.Containers[0].Image
 				routeReplicas = len(routeList.Items)
 			})
